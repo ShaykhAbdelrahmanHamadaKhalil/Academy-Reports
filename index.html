@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقارير الأكاديمية</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Cairo for modern Arabic UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Variables for Light & Dark modes for easier theme management */
+        :root {
+            --bg-main: #f7f8fc;
+            --bg-content: #ffffff;
+            --bg-sidebar: #eef1f8;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+            --accent-primary: #2563eb;
+            --accent-primary-hover: #1d4ed8;
+            --accent-secondary: #059669;
+            --accent-secondary-hover: #047857;
+            --accent-danger: #dc2626;
+            --accent-danger-hover: #b91c1c;
+            --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body.dark-mode {
+            --bg-main: #0f172a;
+            --bg-content: #1e293b;
+            --bg-sidebar: #172033;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --accent-primary: #38bdf8;
+            --accent-primary-hover: #0ea5e9;
+            --accent-secondary: #34d399;
+            --accent-secondary-hover: #10b981;
+            --accent-danger: #f87171;
+            --accent-danger-hover: #ef4444;
+        }
+
+        /* Base styles */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow: hidden;
+        }
+
+        /* Main application container - using grid for layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: var(--bg-sidebar);
+            padding: 2rem 1.5rem;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease-in-out;
+            z-index: 200;
+        }
+        .sidebar-header {
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: var(--accent-primary);
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+        }
+        .sidebar-nav-item i {
+            font-size: 1.3rem;
+            width: 25px;
+            text-align: center;
+        }
+        .sidebar-nav-item:hover {
+            background-color: color-mix(in srgb, var(--accent-primary) 15%, transparent);
+            color: var(--accent-primary);
+            transform: translateX(-3px);
+        }
+        .sidebar-nav-item.active {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+        .sidebar-nav-item.active:hover {
+            background-color: var(--accent-primary-hover);
+            transform: none;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: hidden;
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2.5rem;
+            background-color: var(--bg-content);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        .main-header-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        .main-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .main-content-body {
+            padding: 2.5rem;
+            overflow-y: auto;
+        }
+        .content-section { display: none; }
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* General UI Elements */
+        .card {
+            background-color: var(--bg-content);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        /* Form Elements Styling */
+        .form-input, .form-select {
+            width: 100%;
+            background-color: var(--bg-main);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.9rem 1.2rem;
+            border-radius: 0.75rem;
+            font-size: 1.1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 25%, transparent);
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .form-group { margin-bottom: 1.75rem; }
+        .fieldset-card {
+            border: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+        .fieldset-legend {
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding: 0 1rem;
+            color: var(--accent-primary);
+        }
+
+        /* Buttons Styling */
+        .btn {
+            padding: 0.9rem 1.75rem;
+            border-radius: 0.75rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .btn-icon {
+            padding: 0;
+            width: 2.75rem;
+            height: 2.75rem;
+            font-size: 1.25rem;
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border-color);
+        }
+        .btn-icon:hover {
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            transform: translateY(-2px) rotate(15deg);
+        }
+        .btn-primary { background-color: var(--accent-primary); color: #ffffff; }
+        .btn-primary:hover { background-color: var(--accent-primary-hover); }
+        .btn-secondary { background-color: var(--accent-secondary); color: #ffffff; }
+        .btn-secondary:hover { background-color: var(--accent-secondary-hover); }
+        .btn-danger { background-color: var(--accent-danger); color: #ffffff; }
+        .btn-danger:hover { background-color: var(--accent-danger-hover); }
+        .btn-outline { background-color: transparent; color: var(--accent-primary); border: 2px solid var(--accent-primary); }
+        .btn-outline:hover { background-color: var(--accent-primary); color: #ffffff; }
+
+        /* Report Card & Table Styling */
+        .report-card { 
+            padding: 1.5rem 2rem; 
+            margin-bottom: 1.5rem; 
+            transition: all 0.3s ease;
+        }
+        .report-card:hover { 
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-md); 
+            border-color: var(--accent-primary); 
+        }
+        .report-card h3 { 
+            color: var(--accent-primary); 
+            font-weight: 700; 
+            font-size: 1.5rem; 
+            margin-bottom: 1rem; 
+        }
+        .report-card strong { color: var(--text-primary); font-weight: 600; }
+        
+        .custom-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 1rem; }
+        .custom-table th, .custom-table td { border-bottom: 1px solid var(--border-color); padding: 1rem 1.5rem; text-align: center; }
+        .custom-table th { font-weight: 700; color: var(--text-secondary); font-size: 1.1rem; background-color: var(--bg-sidebar); }
+        .custom-table tr:last-child td { border-bottom: none; }
+        .custom-table tr:hover td { background-color: color-mix(in srgb, var(--bg-main) 50%, var(--bg-content)); }
+        
+        /* Modal Styles */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);
+            -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+            justify-content: center; align-items: center;
+            animation: fadeInModal 0.3s ease-out forwards;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: var(--bg-content); padding: 2.5rem 3rem;
+            border-radius: 1.5rem; box-shadow: var(--shadow-md);
+            width: 90%; max-width: 550px;
+            animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+            border: 1px solid var(--border-color); position: relative;
+        }
+        .modal-close-button {
+            position: absolute; top: 1rem; left: 1rem; background: none;
+            border: none; font-size: 1.75rem; color: var(--text-secondary);
+            cursor: pointer; transition: color 0.2s, transform 0.2s;
+        }
+        .modal-close-button:hover { color: var(--accent-danger); transform: rotate(90deg); }
+        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container { grid-template-columns: 1fr; }
+            .sidebar {
+                position: fixed; top: 0; right: 0; width: 280px; height: 100%;
+                transform: translateX(100%);
+                box-shadow: none;
+            }
+            .sidebar.mobile-nav-open {
+                transform: translateX(0);
+                box-shadow: -10px 0 25px rgba(0,0,0,0.1);
+            }
+            .main-header { padding: 1rem 1.5rem; }
+            .main-content-body { padding: 1.5rem; }
+            .card { padding: 1.5rem; }
+            .card-header { font-size: 1.5rem; }
+            #mobile-menu-toggle { display: inline-flex; }
+            #sidebar-overlay { display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.5); z-index: 199; }
+            #sidebar-overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ===== SIDEBAR ===== -->
+        <aside class="sidebar">
+            <button id="close-sidebar-btn" class="modal-close-button md:hidden"><i class="fas fa-times"></i></button>
+            <div>
+                <header class="sidebar-header mt-12 md:mt-0">تقارير الأكاديمية</header>
+                <nav class="space-y-3">
+                    <div id="nav-new-report" class="sidebar-nav-item active">
+                        <i class="fas fa-edit"></i>
+                        <span>تقرير جديد</span>
+                    </div>
+                    <div id="nav-all-reports" class="sidebar-nav-item">
+                        <i class="fas fa-list-alt"></i>
+                        <span>كل التقارير</span>
+                    </div>
+                    <div id="nav-my-students" class="sidebar-nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>طلابي</span>
+                    </div>
+                    <div id="nav-attendance" class="sidebar-nav-item">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>التقارير الشهرية</span>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <main class="main-content">
+            <header class="main-header">
+                <h2 id="main-header-title" class="main-header-title"></h2>
+                <div class="main-header-actions">
+                    <button id="darkModeToggle" class="btn btn-icon" aria-label="Toggle Dark Mode">
+                        <i class="far fa-moon"></i>
+                    </button>
+                    <button id="mobile-menu-toggle" class="btn btn-icon hidden md:hidden" aria-label="Open Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </header>
+            <div class="main-content-body">
+                <!-- Section for New Report Form -->
+                <section id="section-new-report" class="content-section">
+                    <div class="card">
+                        <form id="reportForm">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                                <fieldset class="fieldset-card md:col-span-2">
+                                    <legend class="fieldset-legend">بيانات الحلقة</legend>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-4">
+                                        <div class="form-group">
+                                            <label for="studentName" class="form-label">الطالب 🌴</label>
+                                            <select id="studentName" class="form-select" required></select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lessonRing" class="form-label">رقم الحلقة 🌸</label>
+                                            <select id="lessonRing" class="form-select" required></select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lessonDate" class="form-label">التاريخ 🌹</label>
+                                            <input type="date" id="lessonDate" class="form-input" required>
+                                            <p class="text-sm mt-2 text-[--text-secondary]">اليوم: <span id="lessonDay" class="font-semibold text-[--text-primary]"></span></p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lessonDuration" class="form-label">مدة الحلقة (بالدقائق)</label>
+                                            <select id="lessonDuration" class="form-select" required></select>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset class="fieldset-card">
+                                    <legend class="fieldset-legend">التسميع</legend>
+                                    <div class="space-y-6 pt-4">
+                                        <div class="form-group">
+                                            <label for="hifzWard" class="form-label">الورد</label>
+                                            <textarea id="hifzWard" rows="2" class="form-input" placeholder="مثال: سورة البقرة من آية 1 إلى 5"></textarea>
+                                            <label for="hifzWardGrade" class="form-label mt-2">التقدير</label>
+                                            <select id="hifzWardGrade" class="form-select">
+                                                <option value="ممتاز">ممتاز</option>
+                                                <option value="جيد جداً">جيد جداً</option>
+                                                <option value="جيد">جيد</option>
+                                                <option value="يعاد">يعاد</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="hifzQareeb" class="form-label">الماضي القريب</label>
+                                            <textarea id="hifzQareeb" rows="2" class="form-input" placeholder="مثال: مراجعة سورة الفاتحة"></textarea>
+                                            <label for="hifzQareebGrade" class="form-label mt-2">التقدير</label>
+                                            <select id="hifzQareebGrade" class="form-select">
+                                                <option value="ممتاز">ممتاز</option>
+                                                <option value="جيد جداً">جيد جداً</option>
+                                                <option value="جيد">جيد</option>
+                                                <option value="يعاد">يعاد</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="hifzBaeed" class="form-label">الماضي البعيد</label>
+                                            <textarea id="hifzBaeed" rows="2" class="form-input" placeholder="مثال: مراجعة جزء عم"></textarea>
+                                            <label for="hifzBaeedGrade" class="form-label mt-2">التقدير</label>
+                                            <select id="hifzBaeedGrade" class="form-select">
+                                                <option value="ممتاز">ممتاز</option>
+                                                <option value="جيد جداً">جيد جداً</option>
+                                                <option value="جيد">جيد</option>
+                                                <option value="يعاد">يعاد</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
+                                <fieldset class="fieldset-card">
+                                    <legend class="fieldset-legend">الواجب والملاحظات</legend>
+                                    <div class="space-y-6 pt-4">
+                                        <div class="form-group">
+                                            <label for="homeworkWard" class="form-label">واجب الورد</label>
+                                            <textarea id="homeworkWard" rows="2" class="form-input" placeholder="مثال: حفظ سورة البقرة من آية 6 إلى 10"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="homeworkQareeb" class="form-label">واجب الماضي القريب</label>
+                                            <textarea id="homeworkQareeb" rows="2" class="form-input" placeholder="مثال: مراجعة سورة آل عمران"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="homeworkBaeed" class="form-label">واجب الماضي البعيد</label>
+                                            <textarea id="homeworkBaeed" rows="2" class="form-input" placeholder="مثال: مراجعة جزء تبارك"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="notes" class="form-label">ملاحظات</label>
+                                            <textarea id="notes" rows="3" class="form-input" placeholder="أي ملاحظات إضافية عن الحصة أو سلوك الطالب"></textarea>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 pt-8 mt-4 border-t border-[--border-color]">
+                                <button type="submit" class="btn btn-primary w-full">
+                                    <i class="fas fa-save"></i>
+                                    حفظ ونسخ التقرير
+                                </button>
+                                <button type="button" id="copyReportOnlyBtn" class="btn btn-secondary w-full">
+                                    <i class="fas fa-copy"></i>
+                                    نسخ التقرير فقط
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Section for All Reports -->
+                <section id="section-all-reports" class="content-section">
+                    <div class="card">
+                        <div class="filter-controls mb-8 p-6 bg-[--bg-sidebar] rounded-xl">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="globalSearchInput" class="form-label">بحث شامل</label>
+                                    <input type="text" id="globalSearchInput" class="form-input" placeholder="ابحث عن أي كلمة...">
+                                </div>
+                                <div>
+                                    <label for="studentFilterSelect" class="form-label">فلترة حسب الطالب</label>
+                                    <select id="studentFilterSelect" class="form-select"></select>
+                                </div>
+                                <div>
+                                    <label for="dateFilterSelect" class="form-label">فلترة حسب التاريخ</label>
+                                    <select id="dateFilterSelect" class="form-select">
+                                        <option value="all">جميع الأوقات</option>
+                                        <option value="lastTwoDays">آخر يومين</option>
+                                        <option value="currentMonth">الشهر الحالي</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="flex justify-end mt-6">
+                                <button id="deleteAllReportsBtn" class="btn btn-danger" type="button">
+                                    <i class="fas fa-trash-alt"></i>
+                                    حذف جميع التقارير
+                                </button>
+                            </div>
+                        </div>
+                        <div id="reportsList" class="space-y-4">
+                            <p class="text-center text-lg text-[--text-secondary] p-10" id="noReportsMessage">لا توجد تقارير محفوظة بعد.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Section for My Students -->
+                <section id="section-my-students" class="content-section">
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="card-header p-0 m-0">قائمة الطلاب</h2>
+                            <button id="addStudentBtn" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> إضافة طالب جديد
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>اسم الطالب</th>
+                                        <th>مدة الحلقة</th>
+                                        <th>تاريخ الإضافة</th>
+                                        <th>إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentsTableBody">
+                                    <!-- Students will be dynamically added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section for Attendance -->
+                <section id="section-attendance" class="content-section">
+                    <div class="card">
+                        <div class="flex flex-col sm:flex-row items-center gap-4 mb-8 p-6 bg-[--bg-sidebar] rounded-xl">
+                            <div class="flex-grow w-full">
+                                <label for="monthSelector" class="form-label">اختر الشهر</label>
+                                <input type="month" id="monthSelector" class="form-input">
+                            </div>
+                            <button id="calculateAttendanceBtn" class="btn btn-primary self-end h-fit w-full sm:w-auto">
+                                <i class="fas fa-chart-bar"></i>
+                                حساب الحضور
+                            </button>
+                        </div>
+                        <div id="attendanceResults" class="bg-[--bg-content] p-5 rounded-lg overflow-x-auto">
+                            <p class="text-[--text-secondary] text-center" id="attendancePlaceholder">اختر شهراً واضغط "حساب الحضور" لعرض النتائج.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <div id="sidebar-overlay"></div>
+
+    <!-- ===== Modals ===== -->
+    <!-- Add Student Modal -->
+    <div id="addStudentModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close-button" aria-label="Close modal"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-[--accent-primary]">إضافة طالب جديد</h2>
+            <div class="form-group">
+                <label for="newStudentNameInput" class="form-label">اسم الطالب</label>
+                <input type="text" id="newStudentNameInput" class="form-input" placeholder="ادخل اسم الطالب الجديد" required>
+            </div>
+            <div class="form-group">
+                <label for="newStudentDurationSelect" class="form-label">مدة الحلقة (بالدقائق)</label>
+                <select id="newStudentDurationSelect" class="form-select"></select>
+            </div>
+            <button id="saveNewStudentBtn" class="btn btn-primary w-full mt-4">
+                <i class="fas fa-user-plus"></i>
+                إضافة الطالب
+            </button>
+        </div>
+    </div>
+    
+    <!-- Edit Student Modal -->
+    <div id="editStudentModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close-button" aria-label="Close modal"><i class="fas fa-times"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center text-[--accent-primary]">تعديل بيانات الطالب</h2>
+             <input type="hidden" id="editStudentId">
+            <div class="form-group">
+                <label class="form-label">اسم الطالب</label>
+                <p id="editStudentNameDisplay" class="form-input bg-gray-200 cursor-not-allowed"></p>
+            </div>
+            <div class="form-group">
+                <label for="editStudentDurationSelect" class="form-label">مدة الحلقة (بالدقائق)</label>
+                <select id="editStudentDurationSelect" class="form-select"></select>
+            </div>
+            <button id="saveStudentEditBtn" class="btn btn-primary w-full mt-4">
+                <i class="fas fa-save"></i>
+                حفظ التعديلات
+            </button>
+        </div>
+    </div>
+
+    <!-- Generic Info/Confirmation Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content text-center">
+            <p id="infoModalMessage" class="text-xl mb-8 text-[--text-primary]"></p>
+            <div id="infoModalButtons" class="flex justify-center gap-4">
+                <!-- Buttons will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Global State & DOM Elements ---
+            let reports = JSON.parse(localStorage.getItem('lessonReports')) || [];
+            let students = JSON.parse(localStorage.getItem('academyStudents')) || [];
+
+            // Navigation Elements
+            const sidebar = document.querySelector('.sidebar');
+            const navLinks = {
+                newReport: document.getElementById('nav-new-report'),
+                allReports: document.getElementById('nav-all-reports'),
+                attendance: document.getElementById('nav-attendance'),
+                myStudents: document.getElementById('nav-my-students'),
+            };
+
+            const contentSections = {
+                newReport: document.getElementById('section-new-report'),
+                allReports: document.getElementById('section-all-reports'),
+                attendance: document.getElementById('section-attendance'),
+                myStudents: document.getElementById('section-my-students'),
+            };
+            
+            // Header
+            const mainHeaderTitle = document.getElementById('main-header-title');
+
+            // Mobile navigation
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+
+            // New Report Form
+            const reportForm = document.getElementById('reportForm');
+            const studentNameSelect = document.getElementById('studentName');
+            const lessonRingSelect = document.getElementById('lessonRing');
+            const lessonDateInput = document.getElementById('lessonDate');
+            const lessonDaySpan = document.getElementById('lessonDay');
+            const lessonDurationSelect = document.getElementById('lessonDuration');
+            const copyReportOnlyBtn = document.getElementById('copyReportOnlyBtn');
+
+            // All Reports Section
+            const reportsListDiv = document.getElementById('reportsList');
+            const noReportsMessage = document.getElementById('noReportsMessage');
+            const globalSearchInput = document.getElementById('globalSearchInput');
+            const studentFilterSelect = document.getElementById('studentFilterSelect');
+            const dateFilterSelect = document.getElementById('dateFilterSelect');
+            const deleteAllReportsBtn = document.getElementById('deleteAllReportsBtn');
+
+            // My Students Section
+            const studentsTableBody = document.getElementById('studentsTableBody');
+            const addStudentBtn = document.getElementById('addStudentBtn');
+
+            // Attendance Section
+            const monthSelector = document.getElementById('monthSelector');
+            const calculateAttendanceBtn = document.getElementById('calculateAttendanceBtn');
+            const attendanceResultsDiv = document.getElementById('attendanceResults');
+
+            // Modals
+            const allModals = document.querySelectorAll('.modal');
+            const addStudentModal = document.getElementById('addStudentModal');
+            const newStudentNameInput = document.getElementById('newStudentNameInput');
+            const newStudentDurationSelect = document.getElementById('newStudentDurationSelect');
+            const saveNewStudentBtn = document.getElementById('saveNewStudentBtn');
+            
+            const editStudentModal = document.getElementById('editStudentModal');
+            const editStudentIdInput = document.getElementById('editStudentId');
+            const editStudentNameDisplay = document.getElementById('editStudentNameDisplay');
+            const editStudentDurationSelect = document.getElementById('editStudentDurationSelect');
+            const saveStudentEditBtn = document.getElementById('saveStudentEditBtn');
+
+            const infoModal = document.getElementById('infoModal');
+            const infoModalMessage = document.getElementById('infoModalMessage');
+            const infoModalButtons = document.getElementById('infoModalButtons');
+            
+            // Dark Mode
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // --- Helper Functions ---
+            const generateUniqueId = () => 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const saveReports = () => localStorage.setItem('lessonReports', JSON.stringify(reports));
+            const saveStudents = () => localStorage.setItem('academyStudents', JSON.stringify(students));
+            
+            // --- Modal Management ---
+            const openModal = (modal) => modal.classList.add('active');
+            const closeModal = (modal) => modal.classList.remove('active');
+
+            allModals.forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal(modal);
+                });
+                const closeBtn = modal.querySelector('.modal-close-button');
+                if (closeBtn) closeBtn.addEventListener('click', () => closeModal(modal));
+            });
+
+            function showInfoModal(message, isConfirmation = false) {
+                 return new Promise((resolve) => {
+                    infoModalMessage.innerHTML = message;
+                    infoModalButtons.innerHTML = ''; 
+
+                    if (isConfirmation) {
+                        const yesButton = document.createElement('button');
+                        yesButton.className = 'btn btn-danger';
+                        yesButton.innerHTML = '<i class="fas fa-check"></i> نعم، تأكيد';
+                        yesButton.onclick = () => { closeModal(infoModal); resolve(true); };
+                        
+                        const noButton = document.createElement('button');
+                        noButton.className = 'btn btn-outline';
+                        noButton.innerHTML = '<i class="fas fa-times"></i> إلغاء';
+                        noButton.onclick = () => { closeModal(infoModal); resolve(false); };
+                        
+                        infoModalButtons.appendChild(yesButton);
+                        infoModalButtons.appendChild(noButton);
+                    } else { 
+                        const okButton = document.createElement('button');
+                        okButton.className = 'btn btn-primary';
+                        okButton.textContent = 'حسنًا';
+                        okButton.onclick = () => { closeModal(infoModal); resolve(true); };
+                        infoModalButtons.appendChild(okButton);
+                        // **FIX:** Only auto-close informational modals, not confirmation modals.
+                        setTimeout(() => {
+                            if (infoModal.classList.contains('active') && infoModalButtons.children.length === 1) {
+                                closeModal(infoModal);
+                            }
+                        }, 3500);
+                    }
+                    
+                    openModal(infoModal);
+                });
+            }
+
+            // --- Navigation Logic ---
+            const closeMobileSidebar = () => {
+                sidebar.classList.remove('mobile-nav-open');
+                sidebarOverlay.classList.remove('active');
+            };
+
+            const openMobileSidebar = () => {
+                sidebar.classList.add('mobile-nav-open');
+                sidebarOverlay.classList.add('active');
+            };
+
+            const switchView = (view, title) => {
+                mainHeaderTitle.textContent = title;
+                Object.values(navLinks).forEach(link => link.classList.remove('active'));
+                navLinks[view].classList.add('active');
+                
+                Object.values(contentSections).forEach(section => section.classList.remove('active'));
+                contentSections[view].classList.add('active');
+                
+                closeMobileSidebar();
+            };
+
+            // --- Dark Mode Logic ---
+            function enableDarkMode() {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="far fa-sun"></i>';
+                localStorage.setItem('darkMode', 'enabled');
+            }
+
+            function disableDarkMode() {
+                document.body.classList.remove('dark-mode');
+                darkModeToggle.innerHTML = '<i class="far fa-moon"></i>';
+                localStorage.setItem('darkMode', 'disabled');
+            }
+
+            // --- Populate Selects & Dynamic Content ---
+            function populateDurationSelects(...selects) {
+                selects.forEach(select => {
+                    if (!select) return;
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">-- اختر المدة --</option>';
+                    for (let i = 30; i <= 60; i += 5) {
+                        const option = document.createElement('option');
+                        option.value = `${i}`;
+                        option.textContent = `${i} دقيقة`;
+                        select.appendChild(option);
+                    }
+                    select.value = currentValue;
+                });
+            }
+            
+            const populateLessonRingSelect = () => {
+                lessonRingSelect.innerHTML = '<option value="">-- اختر --</option>';
+                for (let i = 1; i <= 20; i++) {
+                    const option = document.createElement('option');
+                    // **CHANGE:** Value and text are now just numbers.
+                    option.value = i;
+                    option.textContent = i;
+                    lessonRingSelect.appendChild(option);
+                }
+            }
+
+            function setupInitialDate() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                lessonDateInput.value = `${year}-${month}-${day}`;
+                updateDayDisplay();
+            }
+            
+            function updateDayDisplay() {
+                if (lessonDateInput.value) {
+                    const date = new Date(lessonDateInput.value.replace(/-/g, '/'));
+                    lessonDaySpan.textContent = date.toLocaleDateString('ar-EG', { weekday: 'long' });
+                } else {
+                    lessonDaySpan.textContent = '';
+                }
+            }
+
+            function populateAllStudentSelects() {
+                const currentStudentForm = studentNameSelect.value;
+                const currentStudentFilter = studentFilterSelect.value;
+                
+                studentNameSelect.innerHTML = '<option value="">-- اختر طالباً --</option>';
+                studentFilterSelect.innerHTML = '<option value="all">كل الطلاب</option>';
+
+                const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                sortedStudents.forEach(student => {
+                    studentNameSelect.add(new Option(student.name, student.name));
+                    studentFilterSelect.add(new Option(student.name, student.name));
+                });
+                
+                studentNameSelect.value = currentStudentForm;
+                studentFilterSelect.value = currentStudentFilter;
+            }
+
+
+            // --- Student Management (CRUD) ---
+            function renderStudentsTable() {
+                studentsTableBody.innerHTML = '';
+                if (students.length === 0) {
+                    studentsTableBody.innerHTML = `<tr><td colspan="4" class="text-center text-[--text-secondary] p-6">لم تقم بإضافة أي طلاب بعد.</td></tr>`;
+                    return;
+                }
+                const sortedStudents = [...students].sort((a, b) => a.name.localeCompare(b.name, 'ar'));
+                sortedStudents.forEach(student => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-semibold">${student.name}</td>
+                        <td>${student.duration} دقيقة</td>
+                        <td>${student.addedDate}</td>
+                        <td class="flex justify-center items-center gap-2">
+                            <button class="btn btn-sm btn-outline edit-student-btn" data-id="${student.id}"><i class="fas fa-edit"></i> تعديل</button>
+                            <button class="btn btn-sm btn-danger delete-student-btn" data-id="${student.id}"><i class="fas fa-user-minus"></i> حذف</button>
+                        </td>
+                    `;
+                    studentsTableBody.appendChild(row);
+                });
+            }
+
+            function handleAddStudent() {
+                const studentName = newStudentNameInput.value.trim();
+                const duration = newStudentDurationSelect.value;
+
+                if (!studentName || !duration) {
+                    showInfoModal('الرجاء إدخال اسم الطالب واختيار مدة الحلقة.');
+                    return;
+                }
+                if (students.some(s => s.name.toLowerCase() === studentName.toLowerCase())) {
+                     showInfoModal('هذا الطالب موجود بالفعل.');
+                     return;
+                }
+
+                students.push({
+                    id: generateUniqueId(),
+                    name: studentName,
+                    duration: duration,
+                    addedDate: new Date().toLocaleDateString('ar-EG-u-nu-latn'),
+                });
+                saveStudents();
+                renderStudentsTable();
+                populateAllStudentSelects();
+                newStudentNameInput.value = '';
+                newStudentDurationSelect.value = '';
+                closeModal(addStudentModal);
+                showInfoModal(`✅ تم إضافة الطالب "${studentName}" بنجاح!`);
+            }
+
+            function handleEditStudent(studentId) {
+                const student = students.find(s => s.id === studentId);
+                if (!student) return;
+                
+                editStudentIdInput.value = student.id;
+                editStudentNameDisplay.textContent = student.name;
+                editStudentDurationSelect.value = student.duration;
+                openModal(editStudentModal);
+            }
+
+            function handleSaveStudentEdit() {
+                const studentId = editStudentIdInput.value;
+                const newDuration = editStudentDurationSelect.value;
+                
+                const studentIndex = students.findIndex(s => s.id === studentId);
+                if (studentIndex > -1) {
+                    students[studentIndex].duration = newDuration;
+                    saveStudents();
+                    renderStudentsTable();
+                    closeModal(editStudentModal);
+                    showInfoModal('✅ تم تحديث مدة الحلقة بنجاح.');
+                }
+            }
+
+            function handleDeleteStudent(studentId) {
+                const student = students.find(s => s.id === studentId);
+                if (!student) return;
+
+                showInfoModal(`هل أنت متأكد أنك تريد حذف الطالب "<b>${student.name}</b>"؟ <br>سيؤدي هذا إلى حذف الطالب نهائياً ولكن لن يؤثر على تقاريره المحفوظة.`, true)
+                .then(confirmed => {
+                    if (confirmed) {
+                        students = students.filter(s => s.id !== studentId);
+                        saveStudents();
+                        renderStudentsTable();
+                        populateAllStudentSelects();
+                        showInfoModal('🗑️ تم حذف الطالب بنجاح.');
+                    }
+                });
+            }
+
+            // --- Report Management (CRUD) ---
+            function getReportText(reportData) {
+                 return `
+الحلقة : ${reportData.lessonRing || 'غير محدد'} 🌸
+اليوم : ${reportData.lessonDay || 'غير محدد'} 🍂
+التاريخ : ${reportData.lessonDate || 'غير محدد'} 🌹
+مدة الحلقة : ${reportData.lessonDuration ? reportData.lessonDuration + ' دقيقة' : 'غير محدد'}
+الطالب : ${reportData.studentName || 'غير محدد'} 🌴
+*تم تسميع:*
+الورد : ${reportData.hifzWard || 'لا يوجد'} (بتقدير: ${reportData.hifzWardGrade})
+الماضي القريب : ${reportData.hifzQareeb || 'لا يوجد'} (بتقدير: ${reportData.hifzQareebGrade})
+الماضي البعيد : ${reportData.hifzBaeed || 'لا يوجد'} (بتقدير: ${reportData.hifzBaeedGrade})
+*ملاحظات:*
+${reportData.notes || 'لا يوجد'}
+*🌲 الواجب 🌲*
+الورد : ${reportData.homeworkWard || 'لا يوجد'}
+الماضي القريب : ${reportData.homeworkQareeb || 'لا يوجد'}
+الماضي البعيد : ${reportData.homeworkBaeed || 'لا يوجد'}
+                `.trim().replace(/^\s+/gm, '');
+            }
+
+            function handleSaveAndCopyReport(e) {
+                e.preventDefault();
+                if (!studentNameSelect.value || !lessonDurationSelect.value) {
+                    showInfoModal('الرجاء اختيار طالب وتحديد مدة الحلقة أولاً.');
+                    return;
+                }
+                const reportData = {
+                    id: generateUniqueId(),
+                    studentName: studentNameSelect.value,
+                    lessonRing: lessonRingSelect.value,
+                    lessonDate: lessonDateInput.value,
+                    lessonDay: lessonDaySpan.textContent,
+                    lessonDuration: lessonDurationSelect.value,
+                    hifzWard: reportForm.hifzWard.value.trim(),
+                    hifzWardGrade: reportForm.hifzWardGrade.value,
+                    hifzQareeb: reportForm.hifzQareeb.value.trim(),
+                    hifzQareebGrade: reportForm.hifzQareebGrade.value,
+                    hifzBaeed: reportForm.hifzBaeed.value.trim(),
+                    hifzBaeedGrade: reportForm.hifzBaeedGrade.value,
+                    homeworkWard: reportForm.homeworkWard.value.trim(),
+                    homeworkQareeb: reportForm.homeworkQareeb.value.trim(),
+                    homeworkBaeed: reportForm.homeworkBaeed.value.trim(),
+                    notes: reportForm.notes.value.trim(),
+                };
+                
+                reports.push(reportData);
+                saveReports();
+                renderReports();
+
+                navigator.clipboard.writeText(getReportText(reportData)).then(() => {
+                    showInfoModal('✅ تم حفظ ونسخ التقرير بنجاح!');
+                }, () => {
+                    showInfoModal('⚠️ تم حفظ التقرير، ولكن فشل النسخ.');
+                });
+                
+                const selectedStudent = studentNameSelect.value;
+                reportForm.reset();
+                setupInitialDate();
+                studentNameSelect.value = selectedStudent;
+                loadLastReportForSelectedStudent();
+            }
+
+            function renderReports() {
+                reportsListDiv.innerHTML = '';
+                let filteredReports = [...reports];
+
+                const searchTerm = globalSearchInput.value.toLowerCase();
+                const studentFilter = studentFilterSelect.value;
+                const dateFilter = dateFilterSelect.value;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (searchTerm) {
+                    filteredReports = filteredReports.filter(report => 
+                        Object.values(report).some(val => String(val).toLowerCase().includes(searchTerm))
+                    );
+                }
+                if (studentFilter !== 'all') {
+                    filteredReports = filteredReports.filter(report => report.studentName === studentFilter);
+                }
+                if (dateFilter === 'lastTwoDays') {
+                    const twoDaysAgo = new Date(today);
+                    twoDaysAgo.setDate(today.getDate() - 2);
+                    filteredReports = filteredReports.filter(report => {
+                        const reportDate = new Date(report.lessonDate.replace(/-/g, '/'));
+                        reportDate.setHours(0, 0, 0, 0);
+                        return reportDate >= twoDaysAgo && reportDate <= today;
+                    });
+                } else if (dateFilter === 'currentMonth') {
+                    filteredReports = filteredReports.filter(report => {
+                         const reportDate = new Date(report.lessonDate.replace(/-/g, '/'));
+                         return reportDate.getMonth() === today.getMonth() && reportDate.getFullYear() === today.getFullYear();
+                    });
+                }
+                
+                noReportsMessage.style.display = filteredReports.length === 0 ? 'block' : 'none';
+                const sortedReports = filteredReports.sort((a, b) => new Date(b.lessonDate) - new Date(a.lessonDate));
+                
+                sortedReports.forEach(report => {
+                    const card = document.createElement('div');
+                    card.className = 'card report-card';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <h3>${report.studentName} - ${new Date(report.lessonDate.replace(/-/g, '/')).toLocaleDateString('ar-EG-u-nu-latn')}</h3>
+                            <div class="flex gap-2">
+                               <button data-id="${report.id}" class="btn btn-sm btn-secondary copy-report-btn"><i class="fas fa-copy"></i></button>
+                               <button data-id="${report.id}" class="btn btn-sm btn-danger delete-report-btn"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-4 text-sm text-[--text-secondary]">
+                            <p><strong>رقم الحلقة:</strong> ${report.lessonRing || 'لم يحدد'}</p>
+                            <p><strong>المدة:</strong> ${report.lessonDuration ? report.lessonDuration + ' دقيقة' : 'لم يحدد'}</p>
+                            <div class="md:col-span-2 mt-2">
+                                <p class="font-bold text-[--text-primary]">التسميع:</p>
+                                <ul class="list-disc mr-6 space-y-1">
+                                    ${report.hifzWard ? `<li><strong>الورد:</strong> ${report.hifzWard} (التقدير: ${report.hifzWardGrade})</li>` : ''}
+                                    ${report.hifzQareeb ? `<li><strong>القريب:</strong> ${report.hifzQareeb} (التقدير: ${report.hifzQareebGrade})</li>` : ''}
+                                    ${report.hifzBaeed ? `<li><strong>البعيد:</strong> ${report.hifzBaeed} (التقدير: ${report.hifzBaeedGrade})</li>` : ''}
+                                </ul>
+                            </div>
+                            <div class="md:col-span-2 mt-2">
+                                <p class="font-bold text-[--text-primary]">الواجب:</p>
+                                 <ul class="list-disc mr-6 space-y-1">
+                                    ${report.homeworkWard ? `<li><strong>الورد:</strong> ${report.homeworkWard}</li>` : ''}
+                                    ${report.homeworkQareeb ? `<li><strong>القريب:</strong> ${report.homeworkQareeb}</li>` : ''}
+                                    ${report.homeworkBaeed ? `<li><strong>البعيد:</strong> ${report.homeworkBaeed}</li>` : ''}
+                                </ul>
+                            </div>
+                            ${report.notes ? `<p class="md:col-span-2 mt-2"><strong>ملاحظات:</strong> ${report.notes}</p>` : ''}
+                        </div>
+                    `;
+                    reportsListDiv.appendChild(card);
+                });
+            }
+
+            function handleDeleteReport(reportId) {
+                showInfoModal('هل أنت متأكد أنك تريد حذف هذا التقرير؟', true).then(confirmed => {
+                    if (confirmed) {
+                        reports = reports.filter(r => r.id !== reportId);
+                        saveReports();
+                        renderReports();
+                        showInfoModal('🗑️ تم حذف التقرير.');
+                    }
+                });
+            }
+            
+            function handleDeleteAllReports() {
+                 showInfoModal('هل أنت متأكد من حذف <b>جميع التقارير</b>؟ لا يمكن التراجع عن هذا الإجراء.', true).then(confirmed => {
+                    if (confirmed) {
+                        reports = [];
+                        saveReports();
+                        renderReports();
+                        showInfoModal('🗑️ تم حذف جميع التقارير بنجاح.');
+                    }
+                });
+            }
+
+            function loadLastReportForSelectedStudent() {
+                const selectedStudent = studentNameSelect.value;
+                if (!selectedStudent) {
+                    reportForm.reset();
+                    setupInitialDate();
+                    return;
+                };
+
+                const studentInfo = students.find(s => s.name === selectedStudent);
+                if (studentInfo) {
+                    lessonDurationSelect.value = studentInfo.duration;
+                }
+                
+                const studentReports = reports.filter(r => r.studentName === selectedStudent)
+                                            .sort((a, b) => new Date(b.lessonDate) - new Date(a.lessonDate));
+
+                if (studentReports.length > 0) {
+                    const last = studentReports[0];
+                    // **CHANGE:** Logic to load lesson ring number, handling old "حلقة 5" format.
+                    let ringValue = last.lessonRing;
+                    if (typeof ringValue === 'string' && ringValue.includes('حلقة')) {
+                        ringValue = ringValue.replace('حلقة', '').trim();
+                    }
+                    lessonRingSelect.value = ringValue;
+                    
+                    reportForm.hifzWard.value = last.hifzWard;
+                    reportForm.hifzWardGrade.value = last.hifzWardGrade;
+                    reportForm.hifzQareeb.value = last.hifzQareeb;
+                    reportForm.hifzQareebGrade.value = last.hifzQareebGrade;
+                    reportForm.hifzBaeed.value = last.hifzBaeed;
+                    reportForm.hifzBaeedGrade.value = last.hifzBaeedGrade;
+                    reportForm.notes.value = last.notes;
+                    reportForm.homeworkWard.value = last.homeworkWard;
+                    reportForm.homeworkQareeb.value = last.homeworkQareeb;
+                    reportForm.homeworkBaeed.value = last.homeworkBaeed;
+                }
+            }
+            
+            // --- Monthly Attendance Logic ---
+            function calculateMonthlyAttendance() {
+                const selectedMonth = monthSelector.value;
+                if (!selectedMonth) {
+                    showInfoModal('الرجاء اختيار شهر أولاً.');
+                    return;
+                }
+
+                const [year, month] = selectedMonth.split('-');
+                const studentData = {};
+                let totalDuration = 0;
+
+                reports.forEach(report => {
+                    const reportDate = new Date(report.lessonDate.replace(/-/g, '/'));
+                    if (reportDate.getFullYear() === parseInt(year) && (reportDate.getMonth() + 1) === parseInt(month)) {
+                        const studentName = report.studentName;
+                        const durationMins = parseInt(report.lessonDuration) || 0;
+                        
+                        if (!studentData[studentName]) {
+                            const studentInfo = students.find(s => s.name === studentName);
+                            studentData[studentName] = { 
+                                count: 0, 
+                                duration: 0,
+                                // **CHANGE:** Store the student's default registered duration.
+                                defaultDuration: studentInfo ? studentInfo.duration : 'غير محدد'
+                            };
+                        }
+                        studentData[studentName].count++;
+                        studentData[studentName].duration += durationMins;
+                        totalDuration += durationMins;
+                    }
+                });
+                
+                attendanceResultsDiv.innerHTML = '';
+                if (Object.keys(studentData).length === 0) {
+                    attendanceResultsDiv.innerHTML = `<p class="text-[--text-secondary] text-center">لا توجد حصص مسجلة في هذا الشهر.</p>`;
+                    return;
+                }
+                
+                const table = document.createElement('table');
+                table.className = 'custom-table';
+                // **CHANGE:** Added new column to the table header.
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>اسم الطالب</th>
+                            <th>مدة الحلقة (المسجلة)</th>
+                            <th>عدد الحصص (الفعلية)</th>
+                            <th>مجموع المدة (الفعلية)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+                const tbody = table.querySelector('tbody');
+                const sortedStudents = Object.keys(studentData).sort((a, b) => a.localeCompare(b, 'ar'));
+                
+                sortedStudents.forEach(studentName => {
+                    const data = studentData[studentName];
+                    const hours = Math.floor(data.duration / 60);
+                    const minutes = data.duration % 60;
+                    const durationText = `${hours} س و ${minutes} د`;
+                    // **CHANGE:** Added new cell to the table row.
+                    const row = `<tr>
+                                    <td>${studentName}</td>
+                                    <td>${data.defaultDuration} دقيقة</td>
+                                    <td>${data.count}</td>
+                                    <td>${durationText}</td>
+                                 </tr>`;
+                    tbody.innerHTML += row;
+                });
+                
+                const totalHours = Math.floor(totalDuration / 60);
+                const totalMinutes = totalDuration % 60;
+                const totalSummary = `<p class="text-center font-bold text-lg mt-6 text-[--accent-primary]">الإجمالي الكلي: ${totalHours} ساعة و ${totalMinutes} دقيقة</p>`;
+                
+                attendanceResultsDiv.appendChild(table);
+                attendanceResultsDiv.innerHTML += totalSummary;
+            }
+
+
+            // --- Event Listeners Setup ---
+            function setupEventListeners() {
+                Object.keys(navLinks).forEach(key => {
+                    navLinks[key].addEventListener('click', () => switchView(key, navLinks[key].querySelector('span').textContent));
+                });
+                mobileMenuToggle.addEventListener('click', openMobileSidebar);
+                closeSidebarBtn.addEventListener('click', closeMobileSidebar);
+                sidebarOverlay.addEventListener('click', closeMobileSidebar);
+
+                darkModeToggle.addEventListener('click', () => {
+                    document.body.classList.contains('dark-mode') ? disableDarkMode() : enableDarkMode();
+                });
+                
+                reportForm.addEventListener('submit', handleSaveAndCopyReport);
+                lessonDateInput.addEventListener('change', updateDayDisplay);
+                studentNameSelect.addEventListener('change', loadLastReportForSelectedStudent);
+                copyReportOnlyBtn.addEventListener('click', () => {
+                    const reportData = { studentName: studentNameSelect.value, lessonRing: lessonRingSelect.value, lessonDate: lessonDateInput.value, lessonDay: lessonDaySpan.textContent, lessonDuration: lessonDurationSelect.value, hifzWard: reportForm.hifzWard.value.trim(), hifzWardGrade: reportForm.hifzWardGrade.value, hifzQareeb: reportForm.hifzQareeb.value.trim(), hifzQareebGrade: reportForm.hifzQareebGrade.value, hifzBaeed: reportForm.hifzBaeed.value.trim(), hifzBaeedGrade: reportForm.hifzBaeedGrade.value, homeworkWard: reportForm.homeworkWard.value.trim(), homeworkQareeb: reportForm.homeworkQareeb.value.trim(), homeworkBaeed: reportForm.homeworkBaeed.value.trim(), notes: reportForm.notes.value.trim() };
+                    navigator.clipboard.writeText(getReportText(reportData)).then(() => showInfoModal('✅ تم نسخ التقرير إلى الحافظة.'));
+                });
+
+                addStudentBtn.addEventListener('click', () => openModal(addStudentModal));
+                saveNewStudentBtn.addEventListener('click', handleAddStudent);
+                saveStudentEditBtn.addEventListener('click', handleSaveStudentEdit);
+
+                studentsTableBody.addEventListener('click', e => {
+                    if (e.target.closest('.edit-student-btn')) {
+                        handleEditStudent(e.target.closest('.edit-student-btn').dataset.id);
+                    }
+                    if (e.target.closest('.delete-student-btn')) {
+                        handleDeleteStudent(e.target.closest('.delete-student-btn').dataset.id);
+                    }
+                });
+
+                [globalSearchInput, studentFilterSelect, dateFilterSelect].forEach(el => {
+                    el.addEventListener('input', renderReports);
+                });
+                deleteAllReportsBtn.addEventListener('click', handleDeleteAllReports);
+
+                reportsListDiv.addEventListener('click', e => {
+                    const deleteBtn = e.target.closest('.delete-report-btn');
+                    if (deleteBtn) handleDeleteReport(deleteBtn.dataset.id);
+                    
+                    const copyBtn = e.target.closest('.copy-report-btn');
+                    if (copyBtn) {
+                        const report = reports.find(r => r.id === copyBtn.dataset.id);
+                        if (report) navigator.clipboard.writeText(getReportText(report)).then(() => showInfoModal('✅ تم نسخ التقرير.'));
+                    }
+                });
+
+                calculateAttendanceBtn.addEventListener('click', calculateMonthlyAttendance);
+            }
+
+            // --- App Initialization ---
+            function initializeApp() {
+                if (localStorage.getItem('darkMode') === 'enabled') {
+                    enableDarkMode();
+                }
+                populateDurationSelects(lessonDurationSelect, newStudentDurationSelect, editStudentDurationSelect);
+                populateLessonRingSelect();
+                populateAllStudentSelects();
+                renderStudentsTable();
+                setupInitialDate();
+                renderReports();
+                setupEventListeners();
+                switchView('newReport', 'تقرير جديد');
+            }
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
